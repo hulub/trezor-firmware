@@ -4,9 +4,9 @@ EosVote.candidates			max_count:16
 EosVote.candidates			max_size:32
 EosVote.Y					max_size:33
 
-EosVoteSignature.c_0				max_size:32
-EosVoteSignature.s					max_count:256
-EosVoteSignature.s					max_size:32
+EosVoteSignature.c1			max_size:32
+EosVoteSignature.s			max_count:256
+EosVoteSignature.s			max_size:32
 
 EosPublicKey.PublicKey		max_size:33
 

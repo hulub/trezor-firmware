@@ -143,11 +143,17 @@ message ElGamalTupleType {
 	required bytes C = 2;	// the point resulted after encryption, encoded
 }
 
-message DLEZKPType {
-	required bytes commitment_1 = 1;
-	required bytes commitment_2 = 2;
+message DiscreteLogarithmEqualityPKType {
+	required bytes commitment1 = 1;
+	required bytes commitment2 = 2;
 	required bytes challenge = 3;
 	required bytes response = 4;
+}
+
+message DiscreteLogarithmPKType {
+	required bytes commitment = 1;
+	required bytes challenge = 2;
+	required bytes response = 3;
 }
 
 // -----------------------------------------------------------

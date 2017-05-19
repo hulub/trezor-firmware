@@ -18,11 +18,18 @@ const pb_field_t ElGamalTupleType_fields[3] = {
     PB_LAST_FIELD
 };
 
-const pb_field_t DLEZKPType_fields[5] = {
-    PB_FIELD2(  1, BYTES   , REQUIRED, STATIC  , FIRST, DLEZKPType, commitment_1, commitment_1, 0),
-    PB_FIELD2(  2, BYTES   , REQUIRED, STATIC  , OTHER, DLEZKPType, commitment_2, commitment_1, 0),
-    PB_FIELD2(  3, BYTES   , REQUIRED, STATIC  , OTHER, DLEZKPType, challenge, commitment_2, 0),
-    PB_FIELD2(  4, BYTES   , REQUIRED, STATIC  , OTHER, DLEZKPType, response, challenge, 0),
+const pb_field_t DiscreteLogarithmEqualityPKType_fields[5] = {
+    PB_FIELD2(  1, BYTES   , REQUIRED, STATIC  , FIRST, DiscreteLogarithmEqualityPKType, commitment1, commitment1, 0),
+    PB_FIELD2(  2, BYTES   , REQUIRED, STATIC  , OTHER, DiscreteLogarithmEqualityPKType, commitment2, commitment1, 0),
+    PB_FIELD2(  3, BYTES   , REQUIRED, STATIC  , OTHER, DiscreteLogarithmEqualityPKType, challenge, commitment2, 0),
+    PB_FIELD2(  4, BYTES   , REQUIRED, STATIC  , OTHER, DiscreteLogarithmEqualityPKType, response, challenge, 0),
+    PB_LAST_FIELD
+};
+
+const pb_field_t DiscreteLogarithmPKType_fields[4] = {
+    PB_FIELD2(  1, BYTES   , REQUIRED, STATIC  , FIRST, DiscreteLogarithmPKType, commitment, commitment, 0),
+    PB_FIELD2(  2, BYTES   , REQUIRED, STATIC  , OTHER, DiscreteLogarithmPKType, challenge, commitment, 0),
+    PB_FIELD2(  3, BYTES   , REQUIRED, STATIC  , OTHER, DiscreteLogarithmPKType, response, challenge, 0),
     PB_LAST_FIELD
 };
 
@@ -189,7 +196,7 @@ const pb_extension_type_t wire_debug_out = {
  * numbers or field sizes that are larger than what can fit in 8 or 16 bit
  * field descriptors.
  */
-STATIC_ASSERT((pb_membersize(HDNodePathType, node) < 65536 && pb_membersize(MultisigRedeemScriptType, pubkeys[0]) < 65536 && pb_membersize(TxInputType, multisig) < 65536 && pb_membersize(TxOutputType, multisig) < 65536 && pb_membersize(TransactionType, inputs[0]) < 65536 && pb_membersize(TransactionType, bin_outputs[0]) < 65536 && pb_membersize(TransactionType, outputs[0]) < 65536), YOU_MUST_DEFINE_PB_FIELD_32BIT_FOR_MESSAGES_ElGamalTupleType_DLEZKPType_HDNodeType_HDNodePathType_CoinType_MultisigRedeemScriptType_TxInputType_TxOutputType_TxOutputBinType_TransactionType_TxRequestDetailsType_TxRequestSerializedType_IdentityType)
+STATIC_ASSERT((pb_membersize(HDNodePathType, node) < 65536 && pb_membersize(MultisigRedeemScriptType, pubkeys[0]) < 65536 && pb_membersize(TxInputType, multisig) < 65536 && pb_membersize(TxOutputType, multisig) < 65536 && pb_membersize(TransactionType, inputs[0]) < 65536 && pb_membersize(TransactionType, bin_outputs[0]) < 65536 && pb_membersize(TransactionType, outputs[0]) < 65536), YOU_MUST_DEFINE_PB_FIELD_32BIT_FOR_MESSAGES_ElGamalTupleType_DiscreteLogarithmEqualityPKType_DiscreteLogarithmPKType_HDNodeType_HDNodePathType_CoinType_MultisigRedeemScriptType_TxInputType_TxOutputType_TxOutputBinType_TransactionType_TxRequestDetailsType_TxRequestSerializedType_IdentityType)
 #endif
 
 #if !defined(PB_FIELD_16BIT) && !defined(PB_FIELD_32BIT)

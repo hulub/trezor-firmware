@@ -1,10 +1,14 @@
 ElGamalTupleType.R			max_size:33
 ElGamalTupleType.C			max_size:33
 
-DLEZKPType.commitment_1		max_size:33
-DLEZKPType.commitment_2		max_size:33
-DLEZKPType.challenge		max_size:32
-DLEZKPType.response			max_size:32
+DiscreteLogarithmEqualityPKType.commitment1		max_size:33
+DiscreteLogarithmEqualityPKType.commitment2		max_size:33
+DiscreteLogarithmEqualityPKType.challenge		max_size:32
+DiscreteLogarithmEqualityPKType.response		max_size:32
+
+DiscreteLogarithmPKType.commitment		max_size:33
+DiscreteLogarithmPKType.challenge		max_size:32
+DiscreteLogarithmPKType.response		max_size:32
 
 HDNodeType.chain_code			max_size:32
 HDNodeType.private_key			max_size:32

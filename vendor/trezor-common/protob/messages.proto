@@ -115,12 +115,13 @@ message EosVote {
 }
 
 message EosVoteSignature {
-	required bytes c_0 = 1;
+	required bytes c1 = 1;
 	repeated bytes s = 2;
-	required ElGamalTupleType flag_enc = 3;
-	required ElGamalTupleType identity_enc = 4;
+	required ElGamalTupleType color_enc = 3;
+	required ElGamalTupleType eID_enc = 4;
 	required ElGamalTupleType vote_enc = 5;
-	required DLEZKPType well_format_proof = 6;
+	required DiscreteLogarithmEqualityPKType PK_correct_enc = 6;
+	required DiscreteLogarithmPKType PK_vote = 7;
 }
 
 message EosGetPublicKey {

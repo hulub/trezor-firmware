@@ -39,13 +39,14 @@ const pb_field_t EosVote_fields[4] = {
     PB_LAST_FIELD
 };
 
-const pb_field_t EosVoteSignature_fields[7] = {
-    PB_FIELD2(  1, BYTES   , REQUIRED, STATIC  , FIRST, EosVoteSignature, c_0, c_0, 0),
-    PB_FIELD2(  2, BYTES   , REPEATED, STATIC  , OTHER, EosVoteSignature, s, c_0, 0),
-    PB_FIELD2(  3, MESSAGE , REQUIRED, STATIC  , OTHER, EosVoteSignature, flag_enc, s, &ElGamalTupleType_fields),
-    PB_FIELD2(  4, MESSAGE , REQUIRED, STATIC  , OTHER, EosVoteSignature, identity_enc, flag_enc, &ElGamalTupleType_fields),
-    PB_FIELD2(  5, MESSAGE , REQUIRED, STATIC  , OTHER, EosVoteSignature, vote_enc, identity_enc, &ElGamalTupleType_fields),
-    PB_FIELD2(  6, MESSAGE , REQUIRED, STATIC  , OTHER, EosVoteSignature, well_format_proof, vote_enc, &DLEZKPType_fields),
+const pb_field_t EosVoteSignature_fields[8] = {
+    PB_FIELD2(  1, BYTES   , REQUIRED, STATIC  , FIRST, EosVoteSignature, c1, c1, 0),
+    PB_FIELD2(  2, BYTES   , REPEATED, STATIC  , OTHER, EosVoteSignature, s, c1, 0),
+    PB_FIELD2(  3, MESSAGE , REQUIRED, STATIC  , OTHER, EosVoteSignature, color_enc, s, &ElGamalTupleType_fields),
+    PB_FIELD2(  4, MESSAGE , REQUIRED, STATIC  , OTHER, EosVoteSignature, eID_enc, color_enc, &ElGamalTupleType_fields),
+    PB_FIELD2(  5, MESSAGE , REQUIRED, STATIC  , OTHER, EosVoteSignature, vote_enc, eID_enc, &ElGamalTupleType_fields),
+    PB_FIELD2(  6, MESSAGE , REQUIRED, STATIC  , OTHER, EosVoteSignature, PK_correct_enc, vote_enc, &DiscreteLogarithmEqualityPKType_fields),
+    PB_FIELD2(  7, MESSAGE , REQUIRED, STATIC  , OTHER, EosVoteSignature, PK_vote, PK_correct_enc, &DiscreteLogarithmPKType_fields),
     PB_LAST_FIELD
 };
 
@@ -506,7 +507,7 @@ const pb_field_t DebugLinkFlashErase_fields[2] = {
  * numbers or field sizes that are larger than what can fit in 8 or 16 bit
  * field descriptors.
  */
-STATIC_ASSERT((pb_membersize(EosVoteSignature, flag_enc) < 65536 && pb_membersize(EosVoteSignature, identity_enc) < 65536 && pb_membersize(EosVoteSignature, vote_enc) < 65536 && pb_membersize(EosVoteSignature, well_format_proof) < 65536 && pb_membersize(Features, coins[0]) < 65536 && pb_membersize(PublicKey, node) < 65536 && pb_membersize(GetAddress, multisig) < 65536 && pb_membersize(LoadDevice, node) < 65536 && pb_membersize(SimpleSignTx, inputs[0]) < 65536 && pb_membersize(SimpleSignTx, outputs[0]) < 65536 && pb_membersize(SimpleSignTx, transactions[0]) < 65536 && pb_membersize(TxRequest, details) < 65536 && pb_membersize(TxRequest, serialized) < 65536 && pb_membersize(TxAck, tx) < 65536 && pb_membersize(SignIdentity, identity) < 65536 && pb_membersize(GetECDHSessionKey, identity) < 65536 && pb_membersize(DebugLinkState, node) < 65536), YOU_MUST_DEFINE_PB_FIELD_32BIT_FOR_MESSAGES_TestIn_TestOut_EosVote_EosVoteSignature_EosGetPublicKey_EosPublicKey_Initialize_GetFeatures_Features_ClearSession_ApplySettings_ChangePin_Ping_Success_Failure_ButtonRequest_ButtonAck_PinMatrixRequest_PinMatrixAck_Cancel_PassphraseRequest_PassphraseAck_GetEntropy_Entropy_GetPublicKey_PublicKey_GetAddress_EthereumGetAddress_Address_EthereumAddress_WipeDevice_LoadDevice_ResetDevice_EntropyRequest_EntropyAck_RecoveryDevice_WordRequest_WordAck_SignMessage_VerifyMessage_MessageSignature_EncryptMessage_EncryptedMessage_DecryptMessage_DecryptedMessage_CipherKeyValue_CipheredKeyValue_EstimateTxSize_TxSize_SignTx_SimpleSignTx_TxRequest_TxAck_EthereumSignTx_EthereumTxRequest_EthereumTxAck_SignIdentity_SignedIdentity_GetECDHSessionKey_ECDHSessionKey_SetU2FCounter_FirmwareErase_FirmwareUpload_DebugLinkDecision_DebugLinkGetState_DebugLinkState_DebugLinkStop_DebugLinkLog_DebugLinkMemoryRead_DebugLinkMemory_DebugLinkMemoryWrite_DebugLinkFlashErase)
+STATIC_ASSERT((pb_membersize(EosVoteSignature, color_enc) < 65536 && pb_membersize(EosVoteSignature, eID_enc) < 65536 && pb_membersize(EosVoteSignature, vote_enc) < 65536 && pb_membersize(EosVoteSignature, PK_correct_enc) < 65536 && pb_membersize(EosVoteSignature, PK_vote) < 65536 && pb_membersize(Features, coins[0]) < 65536 && pb_membersize(PublicKey, node) < 65536 && pb_membersize(GetAddress, multisig) < 65536 && pb_membersize(LoadDevice, node) < 65536 && pb_membersize(SimpleSignTx, inputs[0]) < 65536 && pb_membersize(SimpleSignTx, outputs[0]) < 65536 && pb_membersize(SimpleSignTx, transactions[0]) < 65536 && pb_membersize(TxRequest, details) < 65536 && pb_membersize(TxRequest, serialized) < 65536 && pb_membersize(TxAck, tx) < 65536 && pb_membersize(SignIdentity, identity) < 65536 && pb_membersize(GetECDHSessionKey, identity) < 65536 && pb_membersize(DebugLinkState, node) < 65536), YOU_MUST_DEFINE_PB_FIELD_32BIT_FOR_MESSAGES_TestIn_TestOut_EosVote_EosVoteSignature_EosGetPublicKey_EosPublicKey_Initialize_GetFeatures_Features_ClearSession_ApplySettings_ChangePin_Ping_Success_Failure_ButtonRequest_ButtonAck_PinMatrixRequest_PinMatrixAck_Cancel_PassphraseRequest_PassphraseAck_GetEntropy_Entropy_GetPublicKey_PublicKey_GetAddress_EthereumGetAddress_Address_EthereumAddress_WipeDevice_LoadDevice_ResetDevice_EntropyRequest_EntropyAck_RecoveryDevice_WordRequest_WordAck_SignMessage_VerifyMessage_MessageSignature_EncryptMessage_EncryptedMessage_DecryptMessage_DecryptedMessage_CipherKeyValue_CipheredKeyValue_EstimateTxSize_TxSize_SignTx_SimpleSignTx_TxRequest_TxAck_EthereumSignTx_EthereumTxRequest_EthereumTxAck_SignIdentity_SignedIdentity_GetECDHSessionKey_ECDHSessionKey_SetU2FCounter_FirmwareErase_FirmwareUpload_DebugLinkDecision_DebugLinkGetState_DebugLinkState_DebugLinkStop_DebugLinkLog_DebugLinkMemoryRead_DebugLinkMemory_DebugLinkMemoryWrite_DebugLinkFlashErase)
 #endif
 
 #if !defined(PB_FIELD_16BIT) && !defined(PB_FIELD_32BIT)

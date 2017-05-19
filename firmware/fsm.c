@@ -1242,7 +1242,6 @@ void fsm_msgEosVote(EosVote *msg) {
 
 	// pick candidate
 	const char *candidate;
-
 	while (true) {
 		// display each candidate
 		i = 0;
@@ -1261,7 +1260,7 @@ void fsm_msgEosVote(EosVote *msg) {
 			break;
 	}
 
-	// turn candidate name into BigIneteger q and into a point Q
+	// turn candidate name into BigIneteger q and into a point v
 	uint8_t hash[32];
 	bignum256 q;
 	curve_point v;
@@ -1270,7 +1269,8 @@ void fsm_msgEosVote(EosVote *msg) {
 	bn_mod(&q, &secp256k1.order); 				// q is fully reduced
 	scalar_multiply(&secp256k1, &q, &v);		// v = G*q
 
-//	generate_k_random(&f, &secp256k1.order);// f should be generated using that hash function !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+//	generate_k_random(&f, &secp256k1.order);
+	// f should be generated using that hash function !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 	// f is hash( pin || priv key || h )
 	bignum256 f;
 	uint8_t f_encoded_bytes[strlen(pin) + 32 + 65]; // size is: size of pin + 32 (bignum) + 65 (curvepoint)
@@ -1304,16 +1304,16 @@ void fsm_msgEosVote(EosVote *msg) {
 	scalar_multiply(&secp256k1, &d, &D);			// D = G * d
 
 	// write (F, phi) to the response
-	resp->flag_enc.R.size = 33;
-	point_encode33(&F, resp->flag_enc.R.bytes);
-	resp->flag_enc.C.size = 33;
-	point_encode33(&phi, resp->flag_enc.C.bytes);
+	resp->color_enc.R.size = 33;
+	point_encode33(&F, resp->color_enc.R.bytes);
+	resp->color_enc.C.size = 33;
+	point_encode33(&phi, resp->color_enc.C.bytes);
 
 	// write (T, theta) to the response
-	resp->identity_enc.R.size = 33;
-	point_encode33(&T, resp->identity_enc.R.bytes);
-	resp->identity_enc.C.size = 33;
-	point_encode33(&theta, resp->identity_enc.C.bytes);
+	resp->eID_enc.R.size = 33;
+	point_encode33(&T, resp->eID_enc.R.bytes);
+	resp->eID_enc.C.size = 33;
+	point_encode33(&theta, resp->eID_enc.C.bytes);
 
 	// write (D, delta) to the response
 	resp->vote_enc.R.size = 33;
@@ -1344,14 +1344,40 @@ void fsm_msgEosVote(EosVote *msg) {
 	bn_mod(&response, &secp256k1.order);// 					response is fully reduced
 
 	// write DLEZKP to resp
-	resp->well_format_proof.commitment_1.size = 33;
-	point_encode33(&Commitment1, resp->well_format_proof.commitment_1.bytes);
-	resp->well_format_proof.commitment_2.size = 33;
-	point_encode33(&Commitment2, resp->well_format_proof.commitment_2.bytes);
-	resp->well_format_proof.challenge.size = 32;
-	bn_write_be(&challenge, resp->well_format_proof.challenge.bytes);
-	resp->well_format_proof.response.size = 32;
-	bn_write_be(&response, resp->well_format_proof.response.bytes);
+	resp->PK_correct_enc.commitment1.size = 33;
+	point_encode33(&Commitment1, resp->PK_correct_enc.commitment1.bytes);
+	resp->PK_correct_enc.commitment2.size = 33;
+	point_encode33(&Commitment2, resp->PK_correct_enc.commitment2.bytes);
+	resp->PK_correct_enc.challenge.size = 32;
+	bn_write_be(&challenge, resp->PK_correct_enc.challenge.bytes);
+	resp->PK_correct_enc.response.size = 32;
+	bn_write_be(&response, resp->PK_correct_enc.response.bytes);
+
+	// compute Discrete Logarithm Zero Knowledge Proof i.e. log_G D
+	generate_k_random(&k, &secp256k1.order);
+	curve_point Commitment;
+	scalar_multiply(&secp256k1, &k, &Commitment);
+	bignum256 challenge_vote;
+	uint8_t challenge_vote_encoded_bytes[130];
+	point_encode65(&D, challenge_vote_encoded_bytes);
+	point_encode65(&delta, challenge_vote_encoded_bytes + 65);
+	sha256_Raw(challenge_vote_encoded_bytes, 130, hash);
+	bn_read_be(hash, &challenge_vote);
+	bn_mod(&challenge_vote, &secp256k1.order);
+	bignum256 response_vote;
+	bn_copy(&challenge_vote, &response_vote);
+	bn_multiply(&d, &response_vote, &secp256k1.order);
+	bn_add(&response_vote, &k);
+	bn_fast_mod(&response_vote, &secp256k1.order);// % order			response is partly reduced
+	bn_mod(&response_vote, &secp256k1.order);// 					response is fully reduced
+
+	// write DLEZKP to resp
+	resp->PK_vote.commitment.size = 33;
+	point_encode33(&Commitment, resp->PK_vote.commitment.bytes);
+	resp->PK_vote.challenge.size = 32;
+	bn_write_be(&challenge_vote, resp->PK_vote.challenge.bytes);
+	resp->PK_vote.response.size = 32;
+	bn_write_be(&response_vote, resp->PK_vote.response.bytes);
 
 	// compute m = hash(R_v, V_hat) * each, encoded 65
 	bignum256 m;
@@ -1369,10 +1395,10 @@ void fsm_msgEosVote(EosVote *msg) {
 
 	// generate u & compute first lsag encryption
 	bignum256 u, c;
-	generate_k_random(&u, &secp256k1.order);
+	generate_k_random(&u, &secp256k1.order);		// generate random u
 	curve_point CGs, CGc, CG, CHs, CHc, CH, C;
-	scalar_multiply(&secp256k1, &u, &CG);
-	point_multiply(&secp256k1, &u, &phi, &CH);
+	scalar_multiply(&secp256k1, &u, &CG);			// g^u
+	point_multiply(&secp256k1, &u, &phi, &CH);		// \phi^u
 	point_copy(&CG, &C);
 	point_add(&secp256k1, &CH, &C);
 	point_multiply(&secp256k1, &m, &C, &C);
@@ -1384,8 +1410,8 @@ void fsm_msgEosVote(EosVote *msg) {
 
 	if (pi == msg->L_count - 1) {
 		// c is c_0 -- write it in the response
-		resp->c_0.size = 32;
-		bn_write_be(&c, resp->c_0.bytes);
+		resp->c1.size = 32;
+		bn_write_be(&c, resp->c1.bytes);
 	}
 
 	// write s to the response
@@ -1433,8 +1459,8 @@ void fsm_msgEosVote(EosVote *msg) {
 
 		if (index == msg->L_count - 1) {
 			// c is c_0 -- write it in the response
-			resp->c_0.size = 32;
-			bn_write_be(&c, resp->c_0.bytes);
+			resp->c1.size = 32;
+			bn_write_be(&c, resp->c1.bytes);
 		}
 
 		// update progress bar

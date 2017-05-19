@@ -103,29 +103,50 @@ typedef struct _CoinType {
 typedef struct {
     size_t size;
     uint8_t bytes[33];
-} DLEZKPType_commitment_1_t;
+} DiscreteLogarithmEqualityPKType_commitment1_t;
 
 typedef struct {
     size_t size;
     uint8_t bytes[33];
-} DLEZKPType_commitment_2_t;
+} DiscreteLogarithmEqualityPKType_commitment2_t;
 
 typedef struct {
     size_t size;
     uint8_t bytes[32];
-} DLEZKPType_challenge_t;
+} DiscreteLogarithmEqualityPKType_challenge_t;
 
 typedef struct {
     size_t size;
     uint8_t bytes[32];
-} DLEZKPType_response_t;
+} DiscreteLogarithmEqualityPKType_response_t;
 
-typedef struct _DLEZKPType {
-    DLEZKPType_commitment_1_t commitment_1;
-    DLEZKPType_commitment_2_t commitment_2;
-    DLEZKPType_challenge_t challenge;
-    DLEZKPType_response_t response;
-} DLEZKPType;
+typedef struct _DiscreteLogarithmEqualityPKType {
+    DiscreteLogarithmEqualityPKType_commitment1_t commitment1;
+    DiscreteLogarithmEqualityPKType_commitment2_t commitment2;
+    DiscreteLogarithmEqualityPKType_challenge_t challenge;
+    DiscreteLogarithmEqualityPKType_response_t response;
+} DiscreteLogarithmEqualityPKType;
+
+typedef struct {
+    size_t size;
+    uint8_t bytes[33];
+} DiscreteLogarithmPKType_commitment_t;
+
+typedef struct {
+    size_t size;
+    uint8_t bytes[32];
+} DiscreteLogarithmPKType_challenge_t;
+
+typedef struct {
+    size_t size;
+    uint8_t bytes[32];
+} DiscreteLogarithmPKType_response_t;
+
+typedef struct _DiscreteLogarithmPKType {
+    DiscreteLogarithmPKType_commitment_t commitment;
+    DiscreteLogarithmPKType_challenge_t challenge;
+    DiscreteLogarithmPKType_response_t response;
+} DiscreteLogarithmPKType;
 
 typedef struct {
     size_t size;
@@ -336,7 +357,8 @@ extern const uint32_t IdentityType_index_default;
 
 /* Initializer values for message structs */
 #define ElGamalTupleType_init_default            {{0, {0}}, {0, {0}}}
-#define DLEZKPType_init_default                  {{0, {0}}, {0, {0}}, {0, {0}}, {0, {0}}}
+#define DiscreteLogarithmEqualityPKType_init_default {{0, {0}}, {0, {0}}, {0, {0}}, {0, {0}}}
+#define DiscreteLogarithmPKType_init_default     {{0, {0}}, {0, {0}}, {0, {0}}}
 #define HDNodeType_init_default                  {0, 0, 0, {0, {0}}, false, {0, {0}}, false, {0, {0}}}
 #define HDNodePathType_init_default              {HDNodeType_init_default, 0, {0, 0, 0, 0, 0, 0, 0, 0}}
 #define CoinType_init_default                    {false, "", false, "", false, 0u, false, 0, false, 5u, false, 6u, false, 10u, false, ""}
@@ -349,7 +371,8 @@ extern const uint32_t IdentityType_index_default;
 #define TxRequestSerializedType_init_default     {false, 0, false, {0, {0}}, false, {0, {0}}}
 #define IdentityType_init_default                {false, "", false, "", false, "", false, "", false, "", false, 0u}
 #define ElGamalTupleType_init_zero               {{0, {0}}, {0, {0}}}
-#define DLEZKPType_init_zero                     {{0, {0}}, {0, {0}}, {0, {0}}, {0, {0}}}
+#define DiscreteLogarithmEqualityPKType_init_zero {{0, {0}}, {0, {0}}, {0, {0}}, {0, {0}}}
+#define DiscreteLogarithmPKType_init_zero        {{0, {0}}, {0, {0}}, {0, {0}}}
 #define HDNodeType_init_zero                     {0, 0, 0, {0, {0}}, false, {0, {0}}, false, {0, {0}}}
 #define HDNodePathType_init_zero                 {HDNodeType_init_zero, 0, {0, 0, 0, 0, 0, 0, 0, 0}}
 #define CoinType_init_zero                       {false, "", false, "", false, 0, false, 0, false, 0, false, 0, false, 0, false, ""}
@@ -371,10 +394,13 @@ extern const uint32_t IdentityType_index_default;
 #define CoinType_address_type_p2wpkh_tag         6
 #define CoinType_address_type_p2wsh_tag          7
 #define CoinType_signed_message_header_tag       8
-#define DLEZKPType_commitment_1_tag              1
-#define DLEZKPType_commitment_2_tag              2
-#define DLEZKPType_challenge_tag                 3
-#define DLEZKPType_response_tag                  4
+#define DiscreteLogarithmEqualityPKType_commitment1_tag 1
+#define DiscreteLogarithmEqualityPKType_commitment2_tag 2
+#define DiscreteLogarithmEqualityPKType_challenge_tag 3
+#define DiscreteLogarithmEqualityPKType_response_tag 4
+#define DiscreteLogarithmPKType_commitment_tag   1
+#define DiscreteLogarithmPKType_challenge_tag    2
+#define DiscreteLogarithmPKType_response_tag     3
 #define ElGamalTupleType_R_tag                   1
 #define ElGamalTupleType_C_tag                   2
 #define HDNodeType_depth_tag                     1
@@ -433,7 +459,8 @@ extern const uint32_t IdentityType_index_default;
 
 /* Struct field encoding specification for nanopb */
 extern const pb_field_t ElGamalTupleType_fields[3];
-extern const pb_field_t DLEZKPType_fields[5];
+extern const pb_field_t DiscreteLogarithmEqualityPKType_fields[5];
+extern const pb_field_t DiscreteLogarithmPKType_fields[4];
 extern const pb_field_t HDNodeType_fields[7];
 extern const pb_field_t HDNodePathType_fields[3];
 extern const pb_field_t CoinType_fields[9];
@@ -448,7 +475,8 @@ extern const pb_field_t IdentityType_fields[7];
 
 /* Maximum encoded size of messages (where known) */
 #define ElGamalTupleType_size                    70
-#define DLEZKPType_size                          138
+#define DiscreteLogarithmEqualityPKType_size     138
+#define DiscreteLogarithmPKType_size             103
 #define HDNodeType_size                          121
 #define HDNodePathType_size                      171
 #define CoinType_size                            99
