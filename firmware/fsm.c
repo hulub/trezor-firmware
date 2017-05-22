@@ -1331,8 +1331,8 @@ void fsm_msgEosVote(EosVote *msg) {
 	uint8_t challenge_encoded_bytes[4 * 65];
 	point_encode65(&F, challenge_encoded_bytes);
 	point_encode65(&phi, challenge_encoded_bytes + 65);
-	point_encode65(&Commitment1, challenge_encoded_bytes + 130);
-	point_encode65(&Commitment2, challenge_encoded_bytes + 195);
+	point_encode65(&Commitment1, challenge_encoded_bytes + 2 * 65);
+	point_encode65(&Commitment2, challenge_encoded_bytes + 3 * 65);
 	sha256_Raw(challenge_encoded_bytes, 4 * 65, hash);
 	bn_read_be(hash, &challenge);
 	bn_mod(&challenge, &secp256k1.order);
@@ -1396,8 +1396,7 @@ void fsm_msgEosVote(EosVote *msg) {
 	// generate u & compute first lsag encryption
 	bignum256 u, c;
 	generate_k_random(&u, &secp256k1.order);		// generate random u
-	curve_point CGs, CGc, g_cypher, CHs, CHc, phi_cypher, C;
-	curve_point temp;
+	curve_point g_cypher, phi_cypher, temp;
 	scalar_multiply(&secp256k1, &u, &g_cypher);			// g^u
 	point_multiply(&secp256k1, &u, &phi, &phi_cypher);		// \phi^u
 
