@@ -1328,12 +1328,12 @@ void fsm_msgEosVote(EosVote *msg) {
 	point_multiply(&secp256k1, &k, &F, &Commitment1);
 	point_multiply(&secp256k1, &k, &phi, &Commitment2);
 	bignum256 challenge;
-	uint8_t challenge_encoded_bytes[260];
+	uint8_t challenge_encoded_bytes[4 * 65];
 	point_encode65(&F, challenge_encoded_bytes);
 	point_encode65(&phi, challenge_encoded_bytes + 65);
 	point_encode65(&Commitment1, challenge_encoded_bytes + 130);
 	point_encode65(&Commitment2, challenge_encoded_bytes + 195);
-	sha256_Raw(challenge_encoded_bytes, 260, hash);
+	sha256_Raw(challenge_encoded_bytes, 4 * 65, hash);
 	bn_read_be(hash, &challenge);
 	bn_mod(&challenge, &secp256k1.order);
 	bignum256 response;
@@ -1358,10 +1358,10 @@ void fsm_msgEosVote(EosVote *msg) {
 	curve_point Commitment;
 	scalar_multiply(&secp256k1, &k, &Commitment);
 	bignum256 challenge_vote;
-	uint8_t challenge_vote_encoded_bytes[130];
-	point_encode65(&D, challenge_vote_encoded_bytes);
-	point_encode65(&delta, challenge_vote_encoded_bytes + 65);
-	sha256_Raw(challenge_vote_encoded_bytes, 130, hash);
+	uint8_t challenge_vote_encoded_bytes[2 * 65];
+	point_encode65(&secp256k1.G, challenge_vote_encoded_bytes);
+	point_encode65(&Commitment, challenge_vote_encoded_bytes + 65);
+	sha256_Raw(challenge_vote_encoded_bytes, 2 * 65, hash);
 	bn_read_be(hash, &challenge_vote);
 	bn_mod(&challenge_vote, &secp256k1.order);
 	bignum256 response_vote;
@@ -1381,10 +1381,10 @@ void fsm_msgEosVote(EosVote *msg) {
 
 	// compute m = hash(R_v, V_hat) * each, encoded 65
 	bignum256 m;
-	uint8_t message_encoded_bytes[130];
+	uint8_t message_encoded_bytes[2 * 65];
 	point_encode65(&D, message_encoded_bytes);
 	point_encode65(&delta, message_encoded_bytes + 65);
-	sha256_Raw(message_encoded_bytes, 130, hash);
+	sha256_Raw(message_encoded_bytes, 2 * 65, hash);
 	bn_read_be(hash, &m);
 	bn_mod(&m, &secp256k1.order);
 
@@ -1396,17 +1396,27 @@ void fsm_msgEosVote(EosVote *msg) {
 	// generate u & compute first lsag encryption
 	bignum256 u, c;
 	generate_k_random(&u, &secp256k1.order);		// generate random u
-	curve_point CGs, CGc, CG, CHs, CHc, CH, C;
-	scalar_multiply(&secp256k1, &u, &CG);			// g^u
-	point_multiply(&secp256k1, &u, &phi, &CH);		// \phi^u
-	point_copy(&CG, &C);
-	point_add(&secp256k1, &CH, &C);
-	point_multiply(&secp256k1, &m, &C, &C);
-	uint8_t C_encoded[65];
-	point_encode65(&C, C_encoded);
-	sha256_Raw(C_encoded, 65, hash);
+	curve_point CGs, CGc, g_cypher, CHs, CHc, phi_cypher, C;
+	curve_point temp;
+	scalar_multiply(&secp256k1, &u, &g_cypher);			// g^u
+	point_multiply(&secp256k1, &u, &phi, &phi_cypher);		// \phi^u
+
+	// c = hash ( m || g^u || phi^u )
+	uint8_t c_bytes[32 + 2 * 65];
+	bn_write_be(&m, c_bytes);
+	point_encode65(&g_cypher, c_bytes + 32);
+	point_encode65(&phi_cypher, c_bytes + 32 + 65);
+	sha256_Raw(c_bytes, 32 + 2 * 65, hash);
 	bn_read_be(hash, &c);
 	bn_mod(&c, &secp256k1.order);
+
+//	point_copy(&g_cypher, &C);
+//	point_add(&secp256k1, &phi_cypher, &C);
+//	point_multiply(&secp256k1, &m, &C, &C);
+//	uint8_t C_encoded[65];
+//	point_encode65(&C, C_encoded);
+//	sha256_Raw(C_encoded, 65, hash);
+
 
 	if (pi == msg->L_count - 1) {
 		// c is c_0 -- write it in the response
@@ -1433,27 +1443,29 @@ void fsm_msgEosVote(EosVote *msg) {
 		resp->s[index].size = 32;
 		bn_write_be(&s, resp->s[index].bytes);
 
-		// compute CG = G*s + y_i*c
-		scalar_multiply(&secp256k1, &s, &CGs);
+		// compute g_cypher = G*s + y_i*c
+		// compute g_cypher = g^s * y_i^c
+		scalar_multiply(&secp256k1, &s, &g_cypher);		// g_cypher = g^s
 		ecdsa_read_pubkey(&secp256k1, msg->L[index].bytes, &y_i);
-		point_multiply(&secp256k1, &c, &y_i, &CGc);
-		point_copy(&CGs, &CG);
-		point_add(&secp256k1, &CGc, &CG);
+		point_multiply(&secp256k1, &c, &y_i, &temp);	// temp = y_i^c
+		point_add(&secp256k1, &temp, &g_cypher);		// g_cypher += temp
 
-		// compute CH = phi * s + theta * c
-		point_multiply(&secp256k1, &s, &phi, &CHs);
-		point_multiply(&secp256k1, &c, &theta, &CHc);
-		point_copy(&CHs, &CH);
-		point_add(&secp256k1, &CHc, &CH);
+		// compute phi_cypher = phi * s + theta * c
+		// compute phi_cypher = phi^s * theta^c
+		point_multiply(&secp256k1, &s, &phi, &phi_cypher);	// phi_cypher = phi^s
+		point_multiply(&secp256k1, &c, &theta, &temp);		// temp = theta^c
+		point_add(&secp256k1, &temp, &phi_cypher);			// phi_cypher += temp
 
-		// compute C = (CG + CH) * m
-		point_copy(&CG, &C);
-		point_add(&secp256k1, &CH, &C);
-		point_multiply(&secp256k1, &m, &C, &C);
+//		// compute C = (g_cypher + phi_cypher) * m
+//		point_copy(&g_cypher, &C);
+//		point_add(&secp256k1, &CH, &C);
+//		point_multiply(&secp256k1, &m, &C, &C);
 
-		// compute c = hash(C)
-		point_encode65(&C, C_encoded);
-		sha256_Raw(C_encoded, 65, hash);
+		// compute c = hash( m || g_cypher || phi_cypher )
+		bn_write_be(&m, c_bytes);
+		point_encode65(&g_cypher, c_bytes + 32);
+		point_encode65(&phi_cypher, c_bytes + 32 + 65);
+		sha256_Raw(c_bytes, 32 + 2 * 65, hash);
 		bn_read_be(hash, &c);
 		bn_mod(&c, &secp256k1.order);
 
