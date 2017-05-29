@@ -1191,9 +1191,9 @@ void fsm_msgEosVote(EosVote *msg) {
 		return;
 	}
 
-	// print pin code
-	layoutDisplayMessage(pin, "pin code entered");
-	protectButton(ButtonRequestType_ButtonRequest_ConfirmOutput, true);
+//	// print pin code
+//	layoutDisplayMessage(pin, "pin code entered");
+//	protectButton(ButtonRequestType_ButtonRequest_ConfirmOutput, true);
 
 	// get HDNode
 	const char *curve = SECP256K1_NAME;
